@@ -1,0 +1,88 @@
+generated: '2026-08-04'
+method: probed
+source: https://api.masterworks.com/graphql
+note: >-
+  Derived from the introspected GraphQL schema (graphql/masterworks-schema.graphql) plus live
+  anonymous probes. Masterworks publishes no authentication documentation — there is no developer
+  portal, no API reference and no auth guide — so nothing here comes from provider docs.
+
+summary:
+  types: [bearer-token]
+  documented_by_provider: false
+  public_developer_credentials: false
+  self_serve_api_keys: false
+  oauth2: false
+  openid_connect: false
+  api_key: false
+  mutual_tls: false
+  scopes: none-published
+
+model: >-
+  Authentication is enforced per field by the server-defined @authenticate directive rather than by a
+  declared security scheme (GraphQL has no securitySchemes equivalent). Credentials are user session
+  tokens issued to Masterworks' own first-party clients; the directive takes a `clients` argument,
+  indicating the server also constrains which client application a token was minted for. There is no
+  route for a third-party developer to obtain a token: account creation yields an investor session,
+  not an API credential.
+
+schemes:
+- name: authenticate
+  kind: graphql-directive
+  locations: [FIELD_DEFINITION]
+  args:
+  - name: clients
+    note: Restricts which first-party client applications may satisfy the guard.
+  - name: allowUserToken
+    note: Whether an end-user token (as opposed to a service token) satisfies the guard.
+  sources: [graphql/masterworks-schema.graphql]
+- name: signoutAuth
+  kind: graphql-directive
+  locations: [FIELD_DEFINITION]
+  note: >-
+    Guards the pre-account onboarding funnel. The signed-out surface is not anonymous either — the
+    `signedOutDashboard` query requires a `userToken: String!` argument, i.e. a funnel token handed
+    to the client earlier in the flow.
+  sources: [graphql/masterworks-schema.graphql]
+
+observed_failure:
+  http_status: 200
+  graphql_errors:
+  - message: Invalid authentication
+    path: [artists]
+    extensions:
+      reason: invalidToken
+      code: invalidAuthentication
+      status: 401
+  note: >-
+    Errors are returned inside a 200 response body per the GraphQL spec; the transport-level status
+    the API intends is carried in extensions.status.
+
+unauthenticated_surface:
+  introspection: true
+  fields:
+  - health          # returns "OK" with no credentials
+  - testQuery
+  note: >-
+    Schema introspection and the `health` liveness field answer anonymously. Every other field
+    probed returned invalidAuthentication.
+
+well_known:
+  openid_configuration: 404 on api.masterworks.com
+  oauth_authorization_server: 404 on api.masterworks.com
+  note: >-
+    www.masterworks.com answers 200 with an identical 8,531-byte single-page-app shell for every
+    /.well-known/* path, so those 200s are catch-all false positives, not discovery documents.
+
+x-evidence:
+  fetched: '2026-08-04'
+  probes:
+  - url: https://api.masterworks.com/graphql
+    http_status: 200
+    note: anonymous introspection succeeded
+  - url: https://api.masterworks.com/graphql
+    http_status: 200
+    note: 'anonymous data query -> code invalidAuthentication (status 401)'
+  - url: https://api.masterworks.com/.well-known/openid-configuration
+    http_status: 404
+  - url: https://api.masterworks.com/.well-known/oauth-authorization-server
+    http_status: 404

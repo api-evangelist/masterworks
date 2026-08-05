@@ -42,5 +42,26 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Masterworks is a company surfaced via the API Evangelist harvest backlog (source: secondary-market) and added to the network as a stub for full-pipeline profiling.
-- https://forgeglobal.com/masterworks_stock/
+Masterworks is a New York fintech platform that securitizes blue-chip contemporary art. It buys
+paintings by artists such as Picasso, Basquiat, Warhol, Monet and Banksy, places each work in its own
+LLC, files it with the SEC as a separate Regulation A offering, and sells fractional shares to retail
+investors — who can also trade those shares on a Masterworks-operated secondary market.
+
+## API surface
+
+Masterworks publishes **no developer program** — no developer portal, no API documentation, no
+OpenAPI, no SDKs, no CLI, no sandbox, no Postman collection, no MCP server and no A2A agent card.
+
+It does operate a single GraphQL endpoint at `https://api.masterworks.com/graphql`, the private
+backend for its own web and mobile clients. That endpoint answers **anonymous schema introspection**,
+so the complete machine-readable contract is publicly readable: 516 queries, 621 mutations, 5
+subscriptions and 1,584 types, captured verbatim in
+[`graphql/masterworks-schema.graphql`](graphql/masterworks-schema.graphql). Every data field is
+guarded by an `@authenticate` directive and returns `invalidAuthentication` (status 401) without a
+first-party token, so the schema is readable but the data is not.
+
+- Website: https://www.masterworks.com/
+- Help Center: https://knowledge.masterworks.com/en/knowledge
+- Academy (education/blog): https://www.masterworks.com/academy/posts
+- GitHub: https://github.com/MasterworksIO
+- Secondary-market listing (how this company entered the harvest backlog): https://forgeglobal.com/masterworks_stock/

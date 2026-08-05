@@ -1,0 +1,36 @@
+generated: '2026-08-04'
+method: probed
+note: >-
+  Nothing was found. Every /.well-known/ path on the API host 404s. The www host answers HTTP 200
+  with an identical 8,531-byte single-page-app shell for EVERY path — including paths that cannot
+  exist — so its 200s are catch-all false positives and are recorded as such, not as discoveries.
+  No `WellKnown` and no `SecurityTxt` pointer is emitted in apis.yml; there is nothing to point at.
+hosts:
+- host: https://api.masterworks.com
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+- host: https://www.masterworks.com
+  spa_catch_all: true
+  catch_all_evidence:
+    control_probe: /this-is-a-fake-page-xyz123
+    control_status: 200
+    control_bytes: 8531
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  - {path: /.well-known/openid-configuration, status: 200, valid: false, reason: SPA shell HTML, bytes: 8531}
+  - {path: /.well-known/oauth-authorization-server, status: 200, valid: false, reason: SPA shell HTML, bytes: 8531}
+  - {path: /.well-known/api-catalog, status: 200, valid: false, reason: SPA shell HTML, bytes: 8531}
+- host: https://masterworks.com
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+x-evidence:
+  fetched: '2026-08-04'

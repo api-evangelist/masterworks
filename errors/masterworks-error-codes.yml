@@ -1,0 +1,78 @@
+generated: '2026-08-04'
+method: probed
+source: https://api.masterworks.com/graphql
+format: graphql-errors
+rfc9457: false
+note: >-
+  Masterworks publishes no error reference. Every entry below was observed in a live anonymous
+  response from the GraphQL endpoint. This is a partial catalog by construction — codes raised
+  behind authentication cannot be enumerated without a credential, and none are declared in the
+  schema (the API models no error union or Result type; there are zero *Error object types).
+
+envelope:
+  shape: graphql-spec errors[]
+  transport_status: 200
+  fields:
+  - path: errors[].message
+    description: Human-readable message.
+  - path: errors[].locations[]
+    description: Line/column in the submitted document.
+  - path: errors[].path[]
+    description: Response path of the failing field (present on execution errors).
+  - path: errors[].extensions.code
+    description: Machine-readable error code.
+  - path: errors[].extensions.reason
+    description: Sub-reason, on authentication failures.
+  - path: errors[].extensions.status
+    description: The HTTP status the API means, carried inside a 200 body.
+  - path: errors[].code
+    description: >-
+      Non-standard duplicate of extensions.code hoisted to the top of the error object. Clients
+      written against the GraphQL spec will only see extensions.code.
+  - path: data
+    description: 'Present and null-filled for partial execution failures (e.g. {"artists": null}).'
+
+errors:
+- code: invalidAuthentication
+  status: 401
+  reason: invalidToken
+  message: Invalid authentication
+  meaning: No valid user token was presented for a field guarded by @authenticate.
+  remediation: >-
+    Not remediable by a third party — Masterworks issues tokens only to its own web and mobile
+    clients; there is no developer credential.
+  observed_on: 'query { artists(first:1) { edges { node { id name } } } }'
+- code: GRAPHQL_VALIDATION_FAILED
+  status: 400
+  message: 'Unknown argument … / Cannot query field … on type …'
+  meaning: Standard Apollo document-validation failure (unknown field, wrong argument, missing required argument).
+  remediation: Validate the operation against graphql/masterworks-schema.graphql before sending.
+  observed_on: 'query { artists(limit:1) { id } }'
+- code: BAD_REQUEST
+  status: 400
+  message: >-
+    This operation has been blocked as a potential Cross-Site Request Forgery (CSRF). Please either
+    specify a 'content-type' header … or provide a non-empty value for one of the following headers:
+    x-apollo-operation-name, apollo-require-preflight
+  meaning: Apollo Server CSRF prevention rejected a request lacking a non-simple Content-Type or preflight header.
+  remediation: 'Send Content-Type: application/json (or x-apollo-operation-name).'
+  observed_on: GET https://api.masterworks.com/graphql
+
+not_observed:
+  note: >-
+    No rate-limit code, no 5xx, no domain error codes (payment declined, KYC rejected, insufficient
+    shares) were observed. Those almost certainly exist behind authentication; they are simply not
+    enumerable from the public surface and are not asserted here.
+
+x-evidence:
+  fetched: '2026-08-04'
+  probes:
+  - url: https://api.masterworks.com/graphql
+    http_status: 200
+    code: invalidAuthentication
+  - url: https://api.masterworks.com/graphql
+    http_status: 400
+    code: GRAPHQL_VALIDATION_FAILED
+  - url: https://api.masterworks.com/graphql
+    http_status: 400
+    code: BAD_REQUEST

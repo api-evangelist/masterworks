@@ -1,0 +1,88 @@
+generated: '2026-08-04'
+method: derived
+source: graphql/masterworks-schema.graphql
+note: >-
+  Derived from the introspected contract and live probes. Masterworks makes no public compliance or
+  standards claims on its site, so nothing here is a provider assertion. No `Compliance` pointer is
+  emitted in apis.yml — there is no published compliance program or certification page to point at.
+
+standards:
+- id: graphql
+  conforms: true
+  evidence: >-
+    Valid GraphQL schema served over HTTP POST; answers the standard __schema introspection query
+    with a complete IntrospectionQuery response.
+- id: graphql-over-http
+  conforms: partial
+  evidence: >-
+    POST + application/json works. GET is rejected 400 by Apollo CSRF prevention rather than served,
+    which the GraphQL-over-HTTP spec permits but which removes cacheable GET queries.
+- id: graphql-errors
+  conforms: true
+  evidence: 'errors[] with message/locations/path/extensions.code, per the GraphQL spec.'
+  deviation: >-
+    A non-spec `code` field is duplicated at the top level of each error object alongside
+    extensions.code.
+- id: relay-cursor-connections
+  conforms: false
+  evidence: >-
+    Pagination is Relay-shaped (edges + pageInfo, first/after) but the containers are named
+    *Paginated rather than *Connection, PageInfo omits hasNextPage/hasPreviousPage/startCursor/
+    endCursor, and page-number paging is offered in parallel with cursors.
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: No application/problem+json; errors ride the GraphQL error envelope inside a 200.
+- id: oauth2
+  conforms: false
+  evidence: >-
+    No OAuth flows. /.well-known/oauth-authorization-server returned 404 on api.masterworks.com.
+- id: openid-connect
+  conforms: false
+  evidence: /.well-known/openid-configuration returned 404 on api.masterworks.com.
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: '/.well-known/security.txt returned 404 on both masterworks.com and api.masterworks.com.'
+- id: rfc8615-well-known
+  conforms: false
+  evidence: >-
+    No .well-known document served from the API host. www.masterworks.com returns a 200 SPA shell
+    for every /.well-known/* path, which is a catch-all, not a discovery surface.
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: No Sunset or Deprecation headers observed.
+- id: openapi
+  conforms: false
+  evidence: >-
+    No OpenAPI or Swagger document at any probed location on api.masterworks.com or
+    www.masterworks.com.
+- id: asyncapi
+  conforms: false
+  evidence: >-
+    No AsyncAPI document and no webhook surface. The only event mechanism is five GraphQL
+    subscriptions declared in the schema.
+- id: a2a-agent-card
+  conforms: false
+  evidence: >-
+    /.well-known/agent-card.json and /.well-known/agent.json both 404 on api.masterworks.com; the
+    www host answers with the SPA shell, which is not a card.
+- id: mcp
+  conforms: false
+  evidence: No hosted MCP server found in the docs, registries or on any Masterworks host.
+- id: llms-txt
+  conforms: false
+  evidence: /llms.txt returned 404 on api.masterworks.com and www.masterworks.com.
+
+regulatory_context:
+  note: >-
+    Contextual, not a conformance claim about the API. Masterworks operates SEC-qualified
+    Regulation A offerings; the schema models accredited-investor proof, KYC checks, W-9/W-8BEN tax
+    forms, investment advisory agreements and broker-dealer trade rails (North Capital, Templum) —
+    consistent with a US securities-regulated posture. API Evangelist has not verified any filing.
+
+introspection_posture:
+  finding: Anonymous schema introspection is enabled on a production, undocumented backend.
+  severity_note: >-
+    Not a conformance defect and not a vulnerability — it is a deliberate server setting. It is
+    worth flagging to the provider because it publishes the complete admin and internal-operations
+    surface (bulk email/SMS/push tooling, user attribute changes, experiment enrolment) to anyone.
+  observed: '2026-08-04'

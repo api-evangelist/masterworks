@@ -1,0 +1,218 @@
+generated: '2026-08-04'
+method: derived
+source: graphql/masterworks-schema.graphql
+note: >-
+  Entity graph derived mechanically from the introspected GraphQL schema — object-typed fields become
+  has_one, list-typed object fields become has_many. Masterworks publishes no object reference, so
+  descriptions below are read off the schema's own field and type names, not from documentation.
+  This is a curated core; the full schema carries 884 object types.
+
+entities:
+- name: Artwork
+  fields: 52
+  domain: offerings
+  description: A physical painting Masterworks has acquired, with appraisal comparables, media and deal sheets.
+  relationships:
+  - {to: Artist, kind: has_one, via: artist}
+  - {to: ArtworkReference, kind: has_many, via: appraisalComparableWorks}
+  - {to: ArtworkComparableSale, kind: has_many, via: comparableSales}
+  - {to: Asset, kind: has_many, via: artworkMedia}
+
+- name: Offering
+  kind: interface
+  domain: offerings
+  description: >-
+    The securitized wrapper around an artwork — the Reg A offering investors actually buy into.
+    Modeled as a GraphQL interface, so several concrete offering shapes implement it.
+
+- name: Artist
+  fields: 42
+  domain: art-market-data
+  description: An artist, with price time-series, notable collectors and an editorial profile sourced from Contentful.
+  relationships:
+  - {to: ArtistTimeSeriesPoint, kind: has_many, via: timeSeries}
+  - {to: Collector, kind: has_many, via: collectors}
+  - {to: ArtistContentProfile, kind: has_one, via: profile}
+  - {to: ArtistSampleOffering, kind: has_many, via: sampleOfferings}
+
+- name: Auction
+  fields: 22
+  domain: art-market-data
+  description: A third-party auction event tracked for market data.
+  relationships:
+  - {to: AuctionLot, kind: has_many, via: lots}
+
+- name: AuctionLot
+  fields: 17
+  domain: art-market-data
+  relationships:
+  - {to: Auction, kind: belongs_to, via: auction}
+  - {to: Artist, kind: has_one, via: artist}
+
+- name: WorkSale
+  fields: 18
+  domain: art-market-data
+  description: >-
+    An individual sale of a work. Paired into WorkRepeatSalePair — the repeat-sale methodology that
+    underpins the Masterworks art price index.
+
+- name: User
+  fields: 156
+  domain: investors
+  description: >-
+    The investor account and the schema's largest type — identity, contact, KYC, roles, tags,
+    metadata, payment sources, meetings and marketing attribution all hang off it.
+  relationships:
+  - {to: AccreditationProof, kind: has_many, via: accreditationProofs}
+  - {to: Payment, kind: has_many, via: payments}
+  - {to: PaymentSource, kind: has_many, via: paymentSources}
+  - {to: Address, kind: has_one, via: address}
+  - {to: Role, kind: has_many, via: roles}
+  - {to: UserTag, kind: has_many, via: tags}
+  - {to: FullContact, kind: has_one, via: contact}
+  - {to: CalendlyWebhook, kind: has_many, via: calendlyMeetings}
+
+- name: Entity
+  fields: 20
+  domain: investors
+  description: >-
+    A legal investing entity (trust, LLC, IRA, joint account) distinct from the natural-person User,
+    with a self-referential relationship graph for ownership chains and its own KYC checks.
+  relationships:
+  - {to: EntityManagingUser, kind: has_many, via: managingUsers}
+  - {to: EntityRelationship, kind: has_many, via: relationships}
+  - {to: EntityRelationship, kind: has_many, via: ancestorRelationships}
+  - {to: EntityRelationship, kind: has_many, via: descendantRelationships}
+  - {to: KycCheck, kind: has_many, via: kycChecks}
+  - {to: Address, kind: has_one, via: address}
+
+- name: AccreditationProof
+  fields: 14
+  domain: compliance
+  description: Evidence submitted to establish accredited-investor status, with a reviewer and an expiration.
+  relationships:
+  - {to: User, kind: belongs_to, via: user}
+  - {to: User, kind: has_one, via: reviewer}
+  - {to: AccreditationProofDocument, kind: has_many, via: documents}
+
+- name: Contribution
+  fields: 55
+  domain: investing
+  description: >-
+    An investor's subscription into an offering — the central transactional record, carrying
+    compliance review, sales-rep attribution, the signed agreement and its payments.
+  relationships:
+  - {to: User, kind: belongs_to, via: user}
+  - {to: Entity, kind: has_one, via: entity}
+  - {to: Payment, kind: has_many, via: payments}
+  - {to: PaymentSource, kind: has_one, via: paymentSource}
+  - {to: Agreement, kind: has_one, via: signedAgreement}
+  - {to: ContributionDetails, kind: has_one, via: details}
+  - {to: UserDocument, kind: has_one, via: userAttachment}
+
+- name: Agreement
+  fields: 8
+  domain: compliance
+  description: >-
+    A countersigned document — contribution agreements, investment advisory agreements, W-9/W-8BEN,
+    recurring-investment and secondary-market liquidation agreements.
+
+- name: Payment
+  fields: 13
+  domain: payments
+  relationships:
+  - {to: Contribution, kind: belongs_to, via: contribution}
+  - {to: Donation, kind: has_one, via: donation}
+
+- name: PaymentSource
+  fields: 30
+  domain: payments
+  description: A funding instrument — bank account, wire, card, Apple Pay token or IRA custodian (Inspira).
+  relationships:
+  - {to: Address, kind: has_one, via: address}
+  - {to: WireDetails, kind: has_one, via: wireDetails}
+  - {to: InspiraIraContact, kind: has_one, via: inspiraIraContact}
+
+- name: Payout
+  fields: 23
+  domain: payments
+  description: A distribution back to an investor when an artwork sells, with a reinvest visibility setting.
+  relationships:
+  - {to: User, kind: belongs_to, via: user}
+
+- name: BalanceHistoryEntry
+  fields: 7
+  domain: payments
+  description: Per-offering balance snapshots used to render holdings over time.
+
+- name: ExchangeOrder
+  fields: 26
+  domain: secondary-market
+  description: A bid or ask on the Masterworks secondary market, with negotiation threads and an implied market cap.
+  relationships:
+  - {to: ExchangeOrderNegotiation, kind: has_many, via: orderNegotiations}
+  - {to: SecondaryMarketBundle, kind: has_one, via: secondaryMarketBundle}
+  - {to: ExchangeOrderImpliedMarketCap, kind: has_one, via: impliedMarketCap}
+
+- name: ShareTransaction
+  fields: 23
+  domain: secondary-market
+  description: >-
+    The settled transfer of shares, carrying three separate agreements — the transaction's own, the
+    giver's and the receiver's.
+  relationships:
+  - {to: Agreement, kind: has_one, via: agreement}
+  - {to: Agreement, kind: has_one, via: giverAgreement}
+  - {to: Agreement, kind: has_one, via: receiverAgreement}
+  - {to: ExchangeOrderNegotiation, kind: has_one, via: exchangeOrderNegotiation}
+
+- name: SecondaryMarketBundle
+  fields: 20
+  domain: secondary-market
+  description: A themed basket of offerings tradable as a unit on the secondary market.
+  relationships:
+  - {to: Artist, kind: has_many, via: artists}
+
+- name: ArtEvent
+  fields: 39
+  domain: community
+  description: A Masterworks-hosted in-person or virtual event, with RSVP, waitlist, speakers and wallet passes.
+  relationships:
+  - {to: ArtEventRSVP, kind: has_one, via: rsvp}
+  - {to: RSVPAttendee, kind: has_one, via: userRsvp}
+  - {to: Speaker, kind: has_many, via: speakers}
+
+- name: ActivityFeed
+  fields: 45
+  domain: community
+  description: An in-app feed post — article, poll or quiz — with comments, images and an author persona.
+  relationships:
+  - {to: ActivityFeedComment, kind: has_many, via: activityFeedComments}
+  - {to: ActivityFeedPoll, kind: has_one, via: poll}
+  - {to: ActivityFeedArticle, kind: has_one, via: article}
+  - {to: ActivityFeedAuthor, kind: has_one, via: author}
+
+- name: KycStatusChange
+  fields: 1
+  domain: compliance
+  description: Subscription payload emitted when an investor's KYC state changes.
+  relationships:
+  - {to: User, kind: has_one, via: user}
+
+integration_surfaces_visible_in_the_model:
+  note: >-
+    Third-party systems Masterworks has modeled directly into its own schema — a useful read on the
+    stack, all inferred from type names present in the contract.
+  vendors:
+  - {name: Contentful, evidence: 'Artwork.sys / EntrySys, ArtistContentfulData, Asset'}
+  - {name: Calendly, evidence: 'User.calendlyMeetings -> CalendlyWebhook, signedOutCalendlySync'}
+  - {name: FullContact, evidence: 'User.contact -> FullContact, @FullContact directive'}
+  - {name: Plaid, evidence: 'PlaidLinkToken, PlaidAccount(s), PlaidInvestments, PlaidExternalHoldingsOverview, PlaidPaymentInitiation*'}
+  - {name: Dwolla, evidence: 'PlaidPaymentSourceInDwolla, PlaidPaymentSourceInDwollaResponse'}
+  - {name: Persona, evidence: '93 Persona identity-verification identifiers in the schema'}
+  - {name: Onfido, evidence: 'OnfidoToken, onfidoWatchlistCheckTries'}
+  - {name: Tabapay, evidence: 'TabapayToken, ProcessApplePayTokenResult'}
+  - {name: Apple Pay, evidence: 'ApplePayToken, ApplePayMerchantSession, ApplePayTokenPaymentData'}
+  - {name: North Capital, evidence: 'ExchangeNorthCapitalTrade, signMigrationAgreementNorthCapital, InstitutionalPrimaryAuthorizedNorthCapitalInput'}
+  - {name: Templum, evidence: 'ExchangeTemplumTrade, TemplumPrimaryTrusteeAuthorityTypeIdValuePair'}
+  - {name: Inspira Financial, evidence: PaymentSource.inspiraIraContact}

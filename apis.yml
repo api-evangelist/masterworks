@@ -1,23 +1,136 @@
 aid: masterworks
 name: Masterworks
-description: 'Masterworks is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  Masterworks is a New York fintech platform that securitizes blue-chip contemporary art. Founded in
+  2017 and headquartered at 1 World Trade Center, it acquires paintings by artists such as Picasso,
+  Basquiat, Warhol, Monet and Banksy, places each work in its own LLC, files it with the SEC as a
+  separate Regulation A offering, and sells fractional shares to retail investors — who can also
+  trade those shares with each other on a Masterworks-operated secondary market. The company runs a
+  consumer web app, iOS/Android apps and an "Academy" education site, all backed by a single
+  GraphQL endpoint at api.masterworks.com/graphql. Masterworks publishes no developer program,
+  no OpenAPI, no API documentation and no SDKs: the GraphQL endpoint is the private backend for its
+  own clients. It does, however, answer anonymous schema introspection, so the full machine-readable
+  contract — 516 queries, 621 mutations, 5 subscriptions and 1,584 types — is publicly readable
+  even though every data operation returns 401 invalidAuthentication without a user token.
+image: https://www.masterworks.com/mwlogo-400x100.png
 url: https://raw.githubusercontent.com/api-evangelist/masterworks/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
-specificationVersion: '0.20'
+x-tier: profiled
+x-tier-reason: enrichment-pipeline
+specificationVersion: '0.21'
 created: '2026-08-04'
 modified: '2026-08-04'
 tags:
-- Company
-apis: []
+- Art
+- Art Investing
+- Alternative Investments
+- Fintech
+- Investing
+- Securities
+- Fractional Ownership
+- Secondary Market
+- Wealth Management
+- Regulation A
+- GraphQL
+apis:
+- name: Masterworks GraphQL API
+  description: >-
+    The single GraphQL endpoint behind the Masterworks web and mobile apps, covering art offerings,
+    artists, auction and repeat-sale data, contributions, agreements and e-signature, KYC and
+    accreditation, payments and payouts, the secondary-market exchange, art events, activity feeds,
+    referrals and internal notification tooling. It is an undocumented first-party backend, not a
+    published developer API: anonymous schema introspection is enabled, but every data field is
+    guarded by an @authenticate directive and returns HTTP 200 with an
+    errors[].extensions.code of invalidAuthentication (status 401) when called without a token.
+  humanURL: https://www.masterworks.com/
+  baseURL: https://api.masterworks.com/graphql
+  tags:
+  - Art Investing
+  - Alternative Investments
+  - GraphQL
+  - Securities
+  - Fintech
+  properties:
+  - type: GraphQL
+    url: graphql/masterworks-graphql.yml
+  - type: Authentication
+    url: authentication/masterworks-authentication.yml
+  - type: ErrorCatalog
+    url: errors/masterworks-error-codes.yml
+  - type: Conventions
+    url: conventions/masterworks-conventions.yml
+  - type: DataModel
+    url: data-model/masterworks-data-model.yml
+  - type: Lifecycle
+    url: lifecycle/masterworks-lifecycle.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: DomainSecurity
+  url: security/masterworks-domain-security.yml
 - type: Website
+  url: https://www.masterworks.com/
+- type: GraphQL
+  url: graphql/masterworks-graphql.yml
+- type: Authentication
+  url: authentication/masterworks-authentication.yml
+- type: Conventions
+  url: conventions/masterworks-conventions.yml
+- type: ErrorCatalog
+  url: errors/masterworks-error-codes.yml
+- type: DataModel
+  url: data-model/masterworks-data-model.yml
+- type: Lifecycle
+  url: lifecycle/masterworks-lifecycle.yml
+- type: Conformance
+  url: conformance/masterworks-conformance.yml
+- type: LLMsTxt
+  url: llms/masterworks-llms.txt
+- type: Support
+  url: https://knowledge.masterworks.com/en/knowledge
+- type: Blog
+  url: https://www.masterworks.com/academy/posts
+- type: BlogRSS
+  url: https://www.masterworks.com/academy/rss.xml
+- type: GitHubOrganization
+  url: https://github.com/MasterworksIO
+- type: SignUp
+  url: https://www.masterworks.com/wizard/membership/
+- type: TermsOfService
+  url: https://www.masterworks.com/about/terms-of-use
+- type: PrivacyPolicy
+  url: https://www.masterworks.com/about/privacy
+- type: About
+  url: https://www.masterworks.com/about/about-masterworks
+- type: HowItWorks
+  url: https://www.masterworks.com/about/how-it-works
+- type: Disclosure
+  url: https://www.masterworks.com/about/disclosure
+- type: Careers
+  url: https://masterworks.breezy.hr/
+- type: SecondaryMarketListing
   url: https://forgeglobal.com/masterworks_stock/
+x-enrichment:
+  date: '2026-08-04'
+  status: enriched
+  artifacts_added: 11
+  pass: local-v1
+x-coverage:
+  state: covered
+  reason: covered
+  detail: >-
+    No developer program exists, but anonymous GraphQL introspection at
+    https://api.masterworks.com/graphql returned the complete 1,584-type contract (516 queries,
+    621 mutations, 5 subscriptions), which is the basis of this profile.
+  evidence:
+  - url: https://api.masterworks.com/graphql
+    status: 200
+  - url: https://api.masterworks.com/openapi.json
+    status: 404
+  - url: https://api.masterworks.com/.well-known/agent-card.json
+    status: 404
+  checked: '2026-08-04'

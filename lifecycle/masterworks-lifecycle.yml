@@ -1,0 +1,71 @@
+generated: '2026-08-04'
+method: derived
+source: graphql/masterworks-schema.graphql
+note: >-
+  Masterworks publishes no versioning policy, no deprecation policy, no SLA, no changelog and no
+  status page. Everything below is read off the contract or recorded as an observed absence.
+
+versioning:
+  scheme: none
+  current: unversioned
+  evidence: >-
+    Single unversioned path https://api.masterworks.com/graphql. No version path segment, no version
+    header, no schema version field. Evolution is handled entirely by GraphQL field deprecation.
+  docs: null
+
+deprecation:
+  mechanism: GraphQL @deprecated
+  deprecated_fields: 187
+  reasons_provided: true
+  quality_note: >-
+    Deprecation reasons are unusually good for an undocumented API — most name the replacement field
+    explicitly ("Use `eventImage` instead.", "Use collectors", "Use profile field instead") or
+    explain the migration ("artworkId was used previously and is here to show correct data for old
+    notifications. New notifications must use offeringId"). A consumer can migrate off a deprecated
+    field from the schema alone.
+  examples:
+  - {type: Artist, field: contentfulData, reason: Use profile field instead}
+  - {type: Artist, field: artistCollectors, reason: Use collectors}
+  - {type: Auction, field: eventImageUrl, reason: 'Use `eventImage` instead.'}
+  - {type: AuctionLot, field: imageUrl, reason: 'Use `image` instead.'}
+  - {type: ActivityFeed, field: templateName, reason: No longer used and scheduled for removal.}
+  - {type: Contribution, field: fixedAmount, reason: Not used anymore}
+  policy_url: null
+  sunset_header: not observed
+  rfc8594: false
+  note: >-
+    No `Deprecation` pointer is emitted in apis.yml. In-schema @deprecated markers are a signalling
+    mechanism, not a published deprecation policy — there is no page stating notice periods or
+    removal timelines.
+
+sla:
+  url: null
+  uptime_target: null
+
+status_page:
+  url: null
+  probes:
+  - {url: 'https://status.masterworks.com/', result: DNS does not resolve}
+  note: >-
+    No `StatusPage` pointer is emitted. The only liveness affordance found is the anonymous GraphQL
+    `health` field, which returned "OK".
+
+changelog:
+  url: null
+  note: No dated changelog or release-notes page found on masterworks.com or the Academy site.
+
+roadmap:
+  url: null
+
+health_check:
+  kind: graphql-field
+  field: health
+  endpoint: https://api.masterworks.com/graphql
+  observed_response: '{"data":{"health":"OK"}}'
+  authentication_required: false
+
+x-evidence:
+  fetched: '2026-08-04'
+  probes:
+  - {url: 'https://status.masterworks.com/', http_status: 0, note: no DNS}
+  - {url: 'https://api.masterworks.com/graphql', http_status: 200, note: 'health -> OK'}

@@ -1,0 +1,135 @@
+generated: '2026-08-04'
+method: derived
+source: graphql/masterworks-schema.graphql
+note: >-
+  Derived from the introspected schema plus live probes. Masterworks publishes no API documentation,
+  so every convention below is read off the contract itself, not off a docs page.
+
+transport:
+  protocol: graphql-over-http
+  endpoint: https://api.masterworks.com/graphql
+  method: POST
+  content_type: application/json
+  csrf: >-
+    Apollo CSRF prevention — requests must send a non-simple Content-Type or an
+    x-apollo-operation-name / apollo-require-preflight header, else 400 BAD_REQUEST.
+  batching: not observed
+  persisted_queries: not observed
+
+authentication:
+  style: per-field @authenticate directive with client-scoped user tokens
+  see: authentication/masterworks-authentication.yml
+
+pagination:
+  style: hybrid cursor + page-number, Relay-shaped but non-standard
+  container_suffix: '*Paginated'
+  edge_suffix: '*PaginatedEdge'
+  arguments:
+  - name: first
+    type: Int
+    description: Page size.
+  - name: after
+    type: ID
+    description: Opaque cursor to resume from.
+  - name: page
+    type: Int
+    description: 1-based page number — offset paging offered alongside cursor paging.
+  - name: where
+    type: '<Entity>Query input object'
+    description: Filter predicate.
+  - name: sortBy
+    type: '<Entity>SortBy enum'
+    description: Sort key.
+  response_fields:
+    edges: '[<Entity>PaginatedEdge]'
+    pageInfo:
+      limit: Int
+      cursor: String
+      nextCursor: String
+      page: Int
+      first: Int
+      nextPage: Int
+      total: Int
+  deviations:
+  - >-
+    PageInfo does not carry the Relay-spec hasNextPage / hasPreviousPage / startCursor / endCursor
+    fields; it exposes nextCursor/nextPage/total instead. Clients must test nextCursor/nextPage for
+    nullness rather than reading a boolean.
+  - Connections are named "<Entity>Paginated", not "<Entity>Connection".
+  - '`total` is exposed, so the API is countable — unusual and useful for agents.'
+
+idempotency:
+  supported: false
+  evidence: >-
+    No Idempotency-Key argument, input field, header convention or *Idempoten* identifier appears
+    anywhere in 1,584 types / 621 mutations. Financial mutations (makePayment, createContribution,
+    exchange order placement) carry no client-supplied dedupe key on the public contract.
+  note: >-
+    Recorded as absent. No `Idempotency` pointer is emitted in apis.yml — the provider has no
+    idempotency contract to point at.
+
+versioning:
+  scheme: none
+  current: unversioned
+  evidence: >-
+    A single /graphql path with no version segment, no version header and no schema version field.
+    Evolution is handled by GraphQL field deprecation.
+  see: lifecycle/masterworks-lifecycle.yml
+
+deprecation:
+  mechanism: GraphQL @deprecated
+  deprecated_fields: 187
+  quality: >-
+    Most deprecations carry a real, actionable reason string ("Use `eventImage` instead.",
+    "artworkId was used previously … New notifications must use offeringId"). This is the strongest
+    part of the provider's contract hygiene.
+  sunset_header: not observed
+  policy_url: none published
+
+caching:
+  mechanism: Apollo @cacheControl directive (maxAge, scope, inheritMaxAge) declared on fields, objects, interfaces and unions
+  http_caching: not observed
+
+errors:
+  envelope: graphql errors[] with extensions.code / extensions.status
+  see: errors/masterworks-error-codes.yml
+
+rate_limits:
+  documented: false
+  signalled: not observed on anonymous requests (no RateLimit-* or X-RateLimit-* headers seen)
+
+request_tracing:
+  request_id_header: not observed
+  correlation_field: not observed
+
+data_types:
+  custom_scalars:
+  - name: CentAmount
+    note: Money is carried in integer cents — no floating-point currency on the contract.
+  - name: PreciseNumber
+    note: Arbitrary-precision decimal, used for share counts and valuations.
+  - name: IsoDate
+    note: Calendar date.
+  - name: DateTime
+    note: Timestamp.
+  - name: JSON
+    note: Untyped escape hatch.
+  - name: Upload
+    note: Multipart file upload (documents, accreditation proofs, KYC).
+
+events:
+  mechanism: GraphQL subscriptions
+  count: 5
+  webhooks: none published
+  asyncapi: none published
+  see: graphql/masterworks-graphql.yml
+
+sdks_and_tooling:
+  official_sdks: none published
+  cli: none published
+  postman: none published
+  sandbox: none published
+  openapi: none published
+  note: >-
+    The schema does expose `testQuery`, `testMutate`, `testError`, `testSubscription` and
+    `randomUserProfile` — internal test affordances, not a documented sandbox.

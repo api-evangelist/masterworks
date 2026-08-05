@@ -1,0 +1,153 @@
+generated: '2026-08-04'
+method: probed
+source: https://api.masterworks.com/graphql
+spec_type: GraphQL
+schema_file: masterworks-schema.graphql
+
+summary: >-
+  Masterworks operates a single GraphQL endpoint at https://api.masterworks.com/graphql. It is the
+  private backend for the Masterworks web app, iOS/Android apps and Academy site — there is no
+  developer program, no published documentation, no OpenAPI and no SDKs. Anonymous schema
+  introspection is enabled, so the complete machine-readable contract can be read by anyone; every
+  data field, however, is guarded by an @authenticate directive and returns
+  errors[].extensions.code = invalidAuthentication (status 401) without a user token.
+
+endpoint:
+  url: https://api.masterworks.com/graphql
+  methods: [POST]
+  transport: http
+  content_type: application/json
+  csrf_protection: >-
+    Apollo Server CSRF prevention is enabled — a request with no Content-Type (or with
+    application/x-www-form-urlencoded, multipart/form-data, text/plain) is rejected 400 BAD_REQUEST
+    unless it carries x-apollo-operation-name or apollo-require-preflight.
+  server: Apollo Server (inferred from CSRF error text, @cacheControl and @joinMonster directives)
+
+introspection:
+  enabled: true
+  anonymous: true
+  observed: '2026-08-04'
+  http_status: 200
+  note: >-
+    Anonymous introspection on a production, undocumented backend is a posture choice worth flagging
+    to the provider. It is what makes this profile possible; it is also what lets anyone enumerate
+    the full admin surface. Nothing here defeated an access control — the endpoint answered the
+    standard __schema query with no credentials.
+
+schema_stats:
+  types: 1584
+  objects: 884
+  input_objects: 415
+  enums: 257
+  interfaces: 5
+  unions: 4
+  custom_scalars: [Upload, CentAmount, IsoDate, DateTime, PreciseNumber, JSON]
+  query_fields: 516
+  mutation_fields: 621
+  subscription_fields: 5
+  deprecated_fields: 187
+
+directives:
+  server_defined:
+  - name: authenticate
+    locations: [FIELD_DEFINITION]
+    args: [clients, allowUserToken]
+    note: Field-level authentication guard applied across the schema.
+  - name: signoutAuth
+    locations: [FIELD_DEFINITION]
+    note: Guards the signed-out / pre-account onboarding funnel (signedOut* / signout* fields).
+  - name: cacheControl
+    locations: [FIELD_DEFINITION, OBJECT, INTERFACE, UNION]
+    args: [maxAge, scope, inheritMaxAge]
+    note: Apollo cache-control.
+  - name: joinMonster
+    locations: [FIELD_DEFINITION]
+    note: >-
+      join-monster GraphQL-to-SQL execution layer — Masterworks maintains a public fork at
+      https://github.com/MasterworksIO/join-monster.
+  - name: UserDocument
+    locations: [FIELD_DEFINITION, ARGUMENT_DEFINITION, INPUT_FIELD_DEFINITION]
+  entity_directives:
+    note: >-
+      The schema also declares ~25 entity-scoped directives used for authorization/eventing
+      (Contribution, Entity, ExchangeOrder, Payment, Payout, PaymentSource, ShareTransaction,
+      UserProfile, PublicProfile, Experiment, ArtEvent, SecondaryMarketBundle, …).
+
+capability_domains:
+- domain: Investors, accounts & profiles
+  queries: 94
+  mutations: 133
+- domain: Offerings, artworks & bundles
+  queries: 61
+  mutations: 64
+- domain: Events, activity feed & community
+  queries: 46
+  mutations: 58
+- domain: Contributions & investing
+  queries: 41
+  mutations: 54
+- domain: Artists & art-market data (auctions, repeat sales, ArtScan)
+  queries: 36
+  mutations: 15
+- domain: Notifications & messaging (bulk email / SMS / push)
+  queries: 25
+  mutations: 32
+- domain: KYC, accreditation & agreements (W-9/W-8BEN, e-sign)
+  queries: 23
+  mutations: 45
+- domain: Payments & payouts (ACH, wire, Apple Pay, Tabapay, Plaid, balances)
+  queries: 23
+  mutations: 48
+- domain: Secondary market / exchange (orders, negotiations, trades)
+  queries: 18
+  mutations: 8
+- domain: Admin, experiments & internal operations
+  queries: 16
+  mutations: 15
+
+subscriptions:
+- name: kycStatusChange
+  payload: KycStatusChange
+- name: contributionUpdate
+  payload: Contribution
+- name: conversationUpdate
+  payload: ConversationMessage
+- name: meetingScheduled
+  payload: MeetingScheduledResponse
+- name: testSubscription
+  payload: String
+note_on_events: >-
+  These five GraphQL subscriptions are the provider's only event surface. Masterworks publishes no
+  webhooks and no AsyncAPI document, so no asyncapi/ artifact and no `Webhooks` pointer is emitted —
+  a subscription field is not a webhook, and inventing one would misstate the provider's posture.
+
+x-evidence:
+  fetched: '2026-08-04'
+  probes:
+  - url: https://api.masterworks.com/graphql
+    method: POST
+    body: '{"query":"{__schema{queryType{name}}}"}'
+    http_status: 200
+    result: '{"data":{"__schema":{"queryType":{"name":"Query"}}}}'
+  - url: https://api.masterworks.com/graphql
+    method: POST
+    body: full IntrospectionQuery
+    http_status: 200
+    result: 2,565,174 bytes of introspection JSON — rendered to masterworks-schema.graphql
+  - url: https://api.masterworks.com/graphql
+    method: POST
+    body: '{"query":"{health}"}'
+    http_status: 200
+    result: '{"data":{"health":"OK"}}'
+  - url: https://api.masterworks.com/graphql
+    method: POST
+    body: '{"query":"{artists(first:1){edges{node{id name}}}}"}'
+    http_status: 200
+    result: 'errors[0].extensions = {reason: invalidToken, code: invalidAuthentication, status: 401}'
+  - url: https://api.masterworks.com/graphql
+    method: GET
+    http_status: 400
+    result: Apollo CSRF prevention BAD_REQUEST
+  - url: https://api.masterworks.com/
+    method: GET
+    http_status: 404
