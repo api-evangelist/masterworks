@@ -12,6 +12,17 @@ description: >-
   own clients. It does, however, answer anonymous schema introspection, so the full machine-readable
   contract — 516 queries, 621 mutations, 5 subscriptions and 1,584 types — is publicly readable
   even though every data operation returns 401 invalidAuthentication without a user token.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://www.masterworks.com/mwlogo-400x100.png
 url: https://raw.githubusercontent.com/api-evangelist/masterworks/refs/heads/main/apis.yml
 x-type: company
