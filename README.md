@@ -64,26 +64,90 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Masterworks is a New York fintech platform that securitizes blue-chip contemporary art. It buys
-paintings by artists such as Picasso, Basquiat, Warhol, Monet and Banksy, places each work in its own
-LLC, files it with the SEC as a separate Regulation A offering, and sells fractional shares to retail
-investors — who can also trade those shares on a Masterworks-operated secondary market.
+Masterworks is a New York fintech platform that securitizes blue-chip contemporary art. Founded in 2017 and headquartered at 1 World Trade Center, it acquires paintings by artists such as Picasso, Basquiat, Warhol, Monet and Banksy, places each work in its own LLC, files it with the SEC as a separate Regulation A offering, and sells fractional shares to retail investors — who can also trade those shares with each other on a Masterworks-operated secondary market. The company runs a consumer web app, iOS/Android apps and an "Academy" education site, all backed by a single GraphQL endpoint at api.masterworks.com/graphql. Masterworks publishes no developer program, no OpenAPI, no API documentation and no SDKs: the GraphQL endpoint is the private backend for its own clients. It does, however, answer anonymous schema introspection, so the full machine-readable contract — 516 queries, 621 mutations, 5 subscriptions and 1,584 types — is publicly readable even though every data operation returns 401 invalidAuthentication without a user token.
 
-## API surface
+**Areas:** Art · Art Investing · Alternative Investments · Fintech · Investing · Securities · Fractional Ownership · Secondary Market · Wealth Management · Regulation A · GraphQL
 
-Masterworks publishes **no developer program** — no developer portal, no API documentation, no
-OpenAPI, no SDKs, no CLI, no sandbox, no Postman collection, no MCP server and no A2A agent card.
+## Masterworks on APIs.io
 
-It does operate a single GraphQL endpoint at `https://api.masterworks.com/graphql`, the private
-backend for its own web and mobile clients. That endpoint answers **anonymous schema introspection**,
-so the complete machine-readable contract is publicly readable: 516 queries, 621 mutations, 5
-subscriptions and 1,584 types, captured verbatim in
-[`graphql/masterworks-schema.graphql`](graphql/masterworks-schema.graphql). Every data field is
-guarded by an `@authenticate` directive and returns `invalidAuthentication` (status 401) without a
-first-party token, so the schema is readable but the data is not.
+Everything profiled for Masterworks is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/masterworks/](https://apis.io/providers/masterworks/)** — or go straight to one of the APIs or properties below.
 
-- Website: https://www.masterworks.com/
-- Help Center: https://knowledge.masterworks.com/en/knowledge
-- Academy (education/blog): https://www.masterworks.com/academy/posts
-- GitHub: https://github.com/MasterworksIO
-- Secondary-market listing (how this company entered the harvest backlog): https://forgeglobal.com/masterworks_stock/
+### APIs (1)
+
+- [Masterworks GraphQL API](https://apis.io/apis/masterworks/masterworks-graphql-api/) — The single GraphQL endpoint behind the Masterworks web and mobile apps, covering art offerings, artists, auction and repeat-sale data, contributions,…
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Masterworks Authentication](https://apis.io/security/masterworks/masterworks-authentication/)
+- [Masterworks Domain Security](https://apis.io/security/masterworks/masterworks-domain-security/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.masterworks.com/)
+- [Sign up](https://www.masterworks.com/wizard/membership/)
+- [Support](https://knowledge.masterworks.com/en/knowledge)
+- [Blog](https://www.masterworks.com/academy/posts)
+- [Terms of service](https://www.masterworks.com/about/terms-of-use)
+- [Privacy policy](https://www.masterworks.com/about/privacy)
+- [GitHub](https://github.com/MasterworksIO)
+
+## API Evangelist rating
+
+**Kin Score 19.3** — emerging · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 66.1 |
+| Contract quality | 35.1 |
+| Contract governance | 4.5 |
+| Operational transparency | 2.6 |
+| Developer ergonomics | 19.0 |
+| Access clarity | 0.0 |
+
+**Agent readiness 18.3** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | documented (partial credit) |
+| OpenAPI Examples | — |
+| Rate Limit Signal | — |
+| Event Surface Described | — |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 15.7** — Securities & Market Data
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/masterworks/](https://apis.io/providers/masterworks/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Masterworks: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/masterworks/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
